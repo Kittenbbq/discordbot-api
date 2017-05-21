@@ -65,10 +65,16 @@
             <artifactId>spring-security-config</artifactId>
             <version>5.0.0.M1</version>
         </dependency>
+        <dependency>
+            <groupId>kittenbbq</groupId>
+            <artifactId>discordbot</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
         <defaultGoal>package</defaultGoal>
+        <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
