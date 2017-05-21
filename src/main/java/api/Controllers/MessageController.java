@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class MessageController {
     public MessageController() {
         this.bot = new BotBase();
