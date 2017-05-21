@@ -2,21 +2,21 @@
 parserOptions:
   ecmaVersion: 6
 env:
-  jquery: true
-  browser: true
   es6: true
+  node: true
 rules:
   semi: 2
   linebreak-style:
   - 2
   - windows
   no-console: 0
-  space-in-parens: 2
+  space-in-parens:
+  - 2
+  - always
   quotes:
   - 2
   - double
 extends:
-- jquery
 - eslint:recommended
 globals:
   Highcharts: false
