@@ -1,0 +1,14 @@
+{
+  "name": "discordbot-statistics",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Polar-",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint-config-jquery": "^1.0.1"
+  }
+}

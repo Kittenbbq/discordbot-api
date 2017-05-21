@@ -1,0 +1,17 @@
+/config/botsettings.properties
+/modules
+/target
+
+dependency-reduced-pom.xml
+licenseheader.txt
+
+nb-configuration.xml
+nbactions-release-profile.xml
+nbactions.xml
+
+# IntelliJ IDEA
+/.idea
+*.iml
+
+# node_modules
+src/main/resources/static/node_modules

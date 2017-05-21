@@ -1,0 +1,12 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 6,
+    },
+    "env": {
+        "jquery": true
+    },
+    "rules": {
+        "semi": 2
+    },
+    "extends": "jquery"
+}
