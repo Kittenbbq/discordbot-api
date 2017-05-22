@@ -3,22 +3,103 @@ let globals = {
 	bgColor: "#333c43",
 	mainColor: "#e16224",
 	lightColor: "#f0b091",
-	fontStyle: {
-		fontFamily: "Verdana, Geneva, sans-serif",
-		color: "#CACACA"
-	},
 	titleFontStyle: {
-
+		fontFamily: "Verdana, Geneva, sans-serif",
+		color: "#BBB"
+	},
+	labelFontStyle: {
+		fontFamily: "Verdana, Geneva, sans-serif",
+		color: "#999"
 	}
 };
 
 $( document ).ready( () => {
 	Highcharts.setOptions( {
 		chart: {
-				fontFamily: "\"Verdana\", Geneva, sans-serif",
-				color: "#FFFFFF"
+			zoomType: "x",
+			backgroundColor: globals.bgColor,
+			style: {
+				color: "#111"
+			}
+		},
+		subtitle: {
+			style: globals.labelFontStyle
+		},
+		title: {
+			style: globals.titleFontStyle
+		},
+		xAxis: {
+			title: {
+				style: globals.titleFontStyle
+			},
+			labels: {
+				style: globals.labelFontStyle
+			}
+		},
+		yAxis: {
+			title: {
+				style: globals.titleFontStyle
+			},
+			labels: {
+				style: globals.labelFontStyle
+			}
+		},
+		legend: {
+			itemStyle: globals.titleFontStyle,
+			itemHoverStyle: globals.labelFontStyle,
+			title: {
+				style: globals.titleFontStyle
+			}
+		},
+		plotOptions: {
+			area: {
+				fillColor: {
+					linearGradient: {
+						x1: 0,
+						y1: 0,
+						x2: 0,
+						y2: 1
+					},
+					stops: [
+						[ 0, globals.mainColor ],
+						[ 1, "rgba( 225, 98, 36, 0.1 )" ]
+					]
+				},
+				marker: {
+					radius: 2
+				},
+				lineWidth: 1,
+				states: {
+					hover: {
+						lineWidth: 1
+					}
+				}
+			},
+			spline: {
+				marker: {
+					radius: 2
+				},
+				lineWidth: 2,
+				states: {
+					hover: {
+						lineWidth: 2
+					}
+				}
+			},
+			bar: {
+				borderWidth: 0,
+				dataLabels: {
+					style: {
+						color: "#FFF",
+						fontFamily: globals.titleFontStyle.fontFamily,
+						fontWeight: "normal"
+					}
+				}
+			}
 		}
 	} );
+
+	// Load charts
 	loadCharts();
 } );
 
@@ -33,20 +114,53 @@ function loadCharts() {
 		$( "#lastMessage" ).append( data.lastMessage );
 	} );
 
-	// Top 10 posters
+	// Message count by author
 	$.get( `${srv}/api/messages/countByAuthor`, ( data ) => {
 		console.log( "data" );
+		let chartData = [];
+		let cats = [];
 		for ( let i = 0; i < data.length; i++ ) {
 			if ( i + 1 > 10 ) {
 				break;
 			}
-			$( "#topMessages" ).append( `
-				<p>${( i + 1 )} ${data[ i ].authorName}: ${data[ i ].messageCount}</p>
-			` );
+			chartData.push( [
+					data[i].authorName, data[i].messageCount
+			] );
+			cats.push( data[i].authorName );
 		}
+		Highcharts.chart( "topMessagers", {
+			title: {
+				text: "Top messages sent",
+				align: "left"
+			},
+			legend: {
+				floating: true,
+				enabled: false
+			},
+			plotOptions: {
+				bar: {
+					dataLabels: {
+						align: "right",
+						enabled: true,
+					}
+				}
+			},
+			xAxis: {
+				categories: cats,
+			},
+			yAxis: {
+				title: ""
+			},
+			series: [ {
+				type: "bar",
+				name: "Count",
+				color: globals.mainColor,
+				data: chartData
+			} ]
+		} );
 	} );
 
-	// Top 10 posters
+	// Message count by date
 	$.get( `${srv}/api/messages/countByDate`, ( data ) => {
 		let chartData = [];
 		for ( let entry of data ) {
@@ -57,35 +171,23 @@ function loadCharts() {
 		}
 
 		Highcharts.chart( "messageCountByDate", {
-			chart: {
-				backgroundColor: globals.bgColor,
-				style: {
-					color: "\"#fff\"",
-					fontFamily: "\"Verdana\", \"Geneva\", \"sans-serif\"",
-				}
-			},
 			title: {
-				text: "Message count by date"
+				text: "Message count by date",
 			},
 			subtitle: {
-				text: "ObeseFinns Discord"
+				text: "ObeseFinns Discord",
 			},
 			yAxis: {
 				title: {
-					text: "Messages sent"
+					text: ""
 				},
 				min: 0
 			},
 			xAxis: {
 				type: "datetime",
 				title: {
-					text: "Date"
+					text: ""
 				}
-			},
-			legend: {
-				layout: "vertical",
-				align: "right",
-				verticalAlign: "middle"
 			},
 			plotOptions: {
 				area: {
@@ -153,8 +255,7 @@ function loadCharts() {
 
 		Highcharts.chart( "messageCountByDayHour", {
 			chart: {
-				backgroundColor: globals.bgColor,
-				type: "spline"
+
 			},
 			title: {
 				text: "Message count by weekday"
@@ -164,22 +265,19 @@ function loadCharts() {
 			},
 			yAxis: {
 				title: {
-					text: "Messages sent"
+					text: ""
 				}
 			},
 			xAxis: {
 				categories: categories,
 				title: {
-					text: "Hour"
+					text: ""
 				}
-			},
-			legend: {
-				layout: "vertical",
-				align: "right",
-				verticalAlign: "middle"
 			},
 			series: [ {
 				name: "Count",
+				style: globals.fontStyle,
+				type: "spline",
 				color: globals.mainColor,
 				data: chartData
 			} ]
