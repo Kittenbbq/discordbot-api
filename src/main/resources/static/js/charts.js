@@ -1,122 +1,32 @@
+/* global setOptions, globals */
+
 let srv = "http://192.168.1.102:8080";
-let globals = {
-	bgColor: "#333c43",
-	mainColor: "#e16224",
-	lightColor: "#f0b091",
-	titleFontStyle: {
-		fontFamily: "Verdana, Geneva, sans-serif",
-		color: "#BBB"
-	},
-	labelFontStyle: {
-		fontFamily: "Verdana, Geneva, sans-serif",
-		color: "#999"
-	}
-};
 
 $( document ).ready( () => {
-	Highcharts.setOptions( {
-		chart: {
-			zoomType: "x",
-			backgroundColor: globals.bgColor,
-			style: {
-				color: "#111"
-			}
-		},
-		subtitle: {
-			style: globals.labelFontStyle
-		},
-		title: {
-			style: globals.titleFontStyle
-		},
-		xAxis: {
-			title: {
-				style: globals.titleFontStyle
-			},
-			labels: {
-				style: globals.labelFontStyle
-			}
-		},
-		yAxis: {
-			title: {
-				style: globals.titleFontStyle
-			},
-			labels: {
-				style: globals.labelFontStyle
-			}
-		},
-		legend: {
-			itemStyle: globals.titleFontStyle,
-			itemHoverStyle: globals.labelFontStyle,
-			title: {
-				style: globals.titleFontStyle
-			}
-		},
-		plotOptions: {
-			area: {
-				fillColor: {
-					linearGradient: {
-						x1: 0,
-						y1: 0,
-						x2: 0,
-						y2: 1
-					},
-					stops: [
-						[ 0, globals.mainColor ],
-						[ 1, "rgba( 225, 98, 36, 0.1 )" ]
-					]
-				},
-				marker: {
-					radius: 2
-				},
-				lineWidth: 1,
-				states: {
-					hover: {
-						lineWidth: 1
-					}
-				}
-			},
-			spline: {
-				marker: {
-					radius: 2
-				},
-				lineWidth: 2,
-				states: {
-					hover: {
-						lineWidth: 2
-					}
-				}
-			},
-			bar: {
-				borderWidth: 0,
-				dataLabels: {
-					style: {
-						color: "#FFF",
-						fontFamily: globals.titleFontStyle.fontFamily,
-						fontWeight: "normal"
-					}
-				}
-			}
-		}
-	} );
-
+	setOptions();
 	// Load charts
 	loadCharts();
 } );
 
+function dateFormat( dateString ) {
+	let date = new Date( dateString );
+	let d = date.getDate();
+	let m = date.getMonth() + 1;
+	let y = date.getFullYear();
+	return `${d}.${m}.${y}`;
+}
+
 function loadCharts() {
-	console.log( "Loading charts" );
 
 	// Message info
 	$.get( `${srv}/api/messages/info`, ( data ) => {
-		console.log( data );
 		$( "#totalMessageCount" ).append( data.messageCount );
-		$( "#firstMessage" ).append( data.firstMessage );
-		$( "#lastMessage" ).append( data.lastMessage );
+		$( "#firstMessage" ).append( dateFormat( data.firstMessage ) );
+		$( "#lastMessage" ).append( dateFormat( data.lastMessage ) );
 	} );
 
 	// Message count by author
 	$.get( `${srv}/api/messages/countByAuthor`, ( data ) => {
-		console.log( "data" );
 		let chartData = [];
 		let cats = [];
 		for ( let i = 0; i < data.length; i++ ) {
@@ -131,6 +41,51 @@ function loadCharts() {
 		Highcharts.chart( "topMessagers", {
 			title: {
 				text: "Top messages sent",
+				align: "left"
+			},
+			legend: {
+				floating: true,
+				enabled: false
+			},
+			plotOptions: {
+				bar: {
+					dataLabels: {
+						align: "right",
+						enabled: true,
+					}
+				}
+			},
+			xAxis: {
+				categories: cats,
+			},
+			yAxis: {
+				title: ""
+			},
+			series: [ {
+				type: "bar",
+				name: "Count",
+				color: globals.mainColor,
+				data: chartData
+			} ]
+		} );
+	} );
+
+	// Message count by author
+	$.get( `${srv}/api/messages/withUrl`, ( data ) => {
+		let chartData = [];
+		let cats = [];
+		for ( let i = 0; i < data.length; i++ ) {
+			if ( i + 1 > 10 ) {
+				break;
+			}
+			chartData.push( [
+					data[i].url, data[i].hits
+			] );
+			cats.push( data[i].url );
+		}
+		Highcharts.chart( "topUrls", {
+			title: {
+				text: "Top linked URLs",
 				align: "left"
 			},
 			legend: {
@@ -189,32 +144,6 @@ function loadCharts() {
 					text: ""
 				}
 			},
-			plotOptions: {
-				area: {
-					fillColor: {
-						linearGradient: {
-							x1: 0,
-							y1: 0,
-							x2: 0,
-							y2: 1
-						},
-						stops: [
-							[ 0, globals.mainColor ],
-							[ 1, "rgba( 225, 98, 36, 0.1 )" ]
-						]
-					},
-					marker: {
-						radius: 2
-					},
-					lineWidth: 1,
-					states: {
-						hover: {
-							lineWidth: 1
-						}
-					},
-					threshold: null
-				}
-			},
 			series: [ {
 				type: "area",
 				name: "Count",
@@ -241,7 +170,6 @@ function loadCharts() {
 		for ( let day of weekdays ) {
 			for ( let i = 0; i < 24; i++ ) {
 				let hourString = i.length === 1 ? `0${i}` : i;
-				console.log( "day is " + day );
 				categories.push( `${day} ${hourString}:00` );
 				let value = data.find( ( entry ) => {
 					return entry.day === day && entry.hour === i;
@@ -249,9 +177,6 @@ function loadCharts() {
 				chartData.push( value ? value.messageCount : 0 );
 			}
 		}
-
-		console.log( categories );
-		console.log( chartData );
 
 		Highcharts.chart( "messageCountByDayHour", {
 			chart: {
@@ -277,7 +202,7 @@ function loadCharts() {
 			series: [ {
 				name: "Count",
 				style: globals.fontStyle,
-				type: "spline",
+				type: "areaspline",
 				color: globals.mainColor,
 				data: chartData
 			} ]

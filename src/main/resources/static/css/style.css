@@ -1,6 +1,7 @@
 body {
 	background-color: #333c43;
-	color: #CACACA;
+	font-family: Verdana, Geneva, sans-serif;
+	color: #CCC
 }
 .chart {
 	padding-top: 50px;
