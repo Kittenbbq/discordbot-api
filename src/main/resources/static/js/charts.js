@@ -3,7 +3,12 @@
 let srv = "http://192.168.1.102:8080";
 
 $( document ).ready( () => {
+	$( "#dpStart" ).datepicker();
+	$( "#dpEnd" ).datepicker();
+
+	// Set options
 	setOptions();
+
 	// Load charts
 	loadCharts();
 } );

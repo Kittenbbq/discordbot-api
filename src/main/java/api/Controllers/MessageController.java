@@ -237,7 +237,6 @@ public class MessageController {
 
 
             Pattern p = Pattern.compile("(?<=^| )https?:\\/\\/\\S*?(?=\\/)");
-            System.out.println("url results");
             for (String item : messages) {
                 // Get url matches in message content
                 Matcher m = p.matcher(item);

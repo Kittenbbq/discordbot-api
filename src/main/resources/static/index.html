@@ -6,13 +6,29 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>ObeseFinns Discord statistics</title>
         <link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/jquery-ui.min.css">
+		<link rel="stylesheet" href="css/jquery-ui.structure.min.css">
+		<link rel="stylesheet" href="css/jquery-ui.theme.min.css">
         <link rel="stylesheet" href="css/style.css">
 		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 		<link rel="icon" href="/favicon.ico" type="image/x-icon">
-
     </head>
     <body>
-        <div class="container">
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<a id="site-title" class="navbar-brand" href="">ObeseFinns Discord statistics</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<div class="input-group">
+						<input id="dpStart" class="form-control datepicker"></input><span class="glyphicon glyphicon glyphicon-chevron-down"></span></a>
+					</div>
+					<input id="dpEnd" class="form-control datepicker"></input><span class="glyphicon glyphicon glyphicon-chevron-down"></span></a>
+				</div><!--/.nav-collapse -->
+			</div>
+			<div id="nav-border"></div>
+		</nav>
+        <div class="main-container container">
             <div class="row">
                 <div class="col-md-3">
                     <div id="message-info" class="chart">
@@ -46,6 +62,7 @@
         </div>
 
         <script src="js/jquery-3.2.1.min.js"></script>
+        <script src="js/jquery-ui.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
 		<script src="js/highcharts.js"></script>
 		<script src="js/charts.js"></script>
