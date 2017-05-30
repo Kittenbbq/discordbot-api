@@ -19,12 +19,19 @@
 				<div class="navbar-header">
 					<a id="site-title" class="navbar-brand" href="">ObeseFinns Discord statistics</a>
 				</div>
-				<div id="navbar" class="navbar-collapse collapse">
-					<div class="input-group">
-						<input id="dpStart" class="form-control datepicker"></input><span class="glyphicon glyphicon glyphicon-chevron-down"></span></a>
-					</div>
-					<input id="dpEnd" class="form-control datepicker"></input><span class="glyphicon glyphicon glyphicon-chevron-down"></span></a>
-				</div><!--/.nav-collapse -->
+				<div id="navbar" class="navbar-collapse collapse dp-wrapper">
+					<form class="navbar-form navbar-left">
+						<div class="input-group input-group-sm">
+							<input id="dpStart" class="form-control datepicker" aria-describedby="dpStartIcon" />
+							<span id="dpStartIcon" class="input-group-addon datepicker"><span class="glyphicon glyphicon-chevron-down"></span></span>
+						</div>
+						 - 
+						<div class="input-group input-group-sm">
+			          		<input id="dpEnd" class="form-control datepicker" aria-describedby="dpEndIcon"></input>
+								<span id="dpEndIcon" class="input-group-addon datepicker"><span class="glyphicon glyphicon-chevron-down"></span></span>
+						</div>
+			      	</form>
+				</div>
 			</div>
 			<div id="nav-border"></div>
 		</nav>

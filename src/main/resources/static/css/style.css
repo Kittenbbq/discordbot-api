@@ -1,8 +1,9 @@
-body, .navbar {
+body {
 	background-color: #333c43;
 	font-family: Verdana, Geneva, sans-serif;
 	color: #CCC
 }
+
 .chart {
 	padding-top: 50px;
 }
@@ -18,10 +19,17 @@ body, .navbar {
 	padding-top: 20px;
 }
 
-.datepicker {
-	width: 160px;
-	height: 23px;
+.dp-wrapper {
+	position:relative;
 }
+
+.datepicker {
+	z-index: 100000 !important;
+	background-color: #70767b;
+	border-color: #adb1b3;
+	color: #CCC;
+}
+
 
 #site-title {
 	color: #e16224
