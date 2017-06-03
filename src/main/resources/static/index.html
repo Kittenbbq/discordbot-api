@@ -17,18 +17,18 @@
 		<nav class="navbar navbar-default navbar-fixed-top">
 			<div class="container">
 				<div class="navbar-header">
-					<a id="site-title" class="navbar-brand" href="">ObeseFinns Discord statistics</a>
+					<b><a id="site-title" class="navbar-brand" href="">ObeseFinns Discord statistics</a></b>
 				</div>
 				<div id="navbar" class="navbar-collapse collapse dp-wrapper">
 					<form class="navbar-form navbar-left">
 						<div class="input-group input-group-sm">
 							<input id="dpStart" class="form-control datepicker" aria-describedby="dpStartIcon" />
-							<span id="dpStartIcon" class="input-group-addon datepicker"><span class="glyphicon glyphicon-chevron-down"></span></span>
+							<span id="dpStartIcon" class="input-group-addon datepicker pointer"><span class="glyphicon glyphicon-chevron-down"></span></span>
 						</div>
-						 - 
+						 -
 						<div class="input-group input-group-sm">
 			          		<input id="dpEnd" class="form-control datepicker" aria-describedby="dpEndIcon"></input>
-								<span id="dpEndIcon" class="input-group-addon datepicker"><span class="glyphicon glyphicon-chevron-down"></span></span>
+							<span id="dpEndIcon" class="input-group-addon datepicker pointer"><span class="glyphicon glyphicon-chevron-down"></span></span>
 						</div>
 			      	</form>
 				</div>
@@ -41,13 +41,10 @@
                     <div id="message-info" class="chart">
 						<h4>General information</h4>
 						<p id="totalMessageCount">
-							Total messages:
 						</p>
 						<p id="firstMessage">
-							First message:
 						</p>
 						<p id="lastMessage">
-							Last message:
 						</p>
 					</div>
 					<div id="topMessagers" class="chart"></div>
@@ -69,6 +66,8 @@
         </div>
 
         <script src="js/jquery-3.2.1.min.js"></script>
+        <script src="js/d3.min.js"></script>
+        <script src="js/d3.layout.cloud.js"></script>
         <script src="js/jquery-ui.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
 		<script src="js/highcharts.js"></script>

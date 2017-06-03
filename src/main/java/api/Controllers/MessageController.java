@@ -34,13 +34,18 @@ public class MessageController {
      * General information of sent messages.
      **/
     @RequestMapping("/api/messages/info")
-    public MessageInfo getMessageInfo() {
+    public MessageInfo getMessageInfo(
+        @RequestParam(value = "fromDate", defaultValue = "2010-01-01") String fromDate,
+        @RequestParam(value = "toDate", defaultValue = "2030-01-01") String toDate
+    ) {
         MessageInfo msgInfo = null;
         ResultSet results;
         PreparedStatement statement;
 
         try {
-            statement = db.getConn().prepareStatement("CALL messageInfo()");
+            statement = db.getConn().prepareStatement(
+                    String.format("CALL messageInfo('%s','%s')", fromDate, toDate)
+            );
             results = statement.executeQuery();
             msgInfo = new MessageInfo();
             if (results.first()) {

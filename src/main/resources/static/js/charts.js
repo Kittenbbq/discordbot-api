@@ -1,37 +1,143 @@
-/* global setOptions, globals */
+/* global d3, setOptions, globals */
 
-let srv = "http://192.168.1.102:8080";
+var fill = d3.schemeCategory20;
+
+var layout = d3.layout.cloud()
+    //.size([500, 500])
+    .words( [
+      "Hello", "world", "normally", "you", "want", "more", "words",
+      "than", "this"].map( ( d ) => {
+      return {text: d, size: 10 + Math.random() * 90, test: "haha"};
+    } ) )
+    .padding( 5 )
+    .rotate( () => {
+		return ~~( Math.random() * 2 ) * 90;
+	} )
+    .font( "Impact" )
+    .fontSize( ( d ) => {
+		return d.size;
+	} )
+    .on( "end", draw );
+
+layout.start();
+
+let draw = ( words ) => {
+  d3.select( "body" ).append( "svg" )
+      .attr( "width", layout.size()[0] )
+      .attr( "height", layout.size()[1] )
+    .append( "g" )
+      .attr( "transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")" )
+    .selectAll( "text" )
+      .data( words )
+    .enter().append( "text" )
+      .style( "font-size", function( d ) { return d.size + "px"; } )
+      .style( "font-family", "Impact" )
+      .style( "fill", function( d, i ) { return fill[i]; } )
+      .attr( "text-anchor", "middle" )
+      .attr( "transform", function( d ) {
+        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+      } )
+      .text( ( d ) => { return d.text; } );
+};
+
+let srv = "http://192.168.1.102:8080/api/";
 
 $( document ).ready( () => {
-	$( "#dpStart" ).datepicker();
-	$( "#dpEnd" ).datepicker();
+	// Default dates
+	let start = new Date( "2015-01-01" ).toISOString();
+	let end = new Date( Date.now() ).toISOString();
 
 	// Set options
 	setOptions();
 
 	// Load charts
-	loadCharts();
+	loadCharts( start, end );
+
+	// Init datepickers
+	initDatePickers( start, end );
 } );
 
-function dateFormat( dateString ) {
+let initDatePickers = ( start, end ) => {
+	// Load jQuery-ui datepickers
+	$( "#dpStart" ).datepicker( {
+		dateFormat: "dd.mm.yy"
+	} );
+	$( "#dpEnd" ).datepicker( {
+		dateFormat: "dd.mm.yy"
+	} );
+
+	// Show datepickers when span-icon is clicked
+	$( "#dpStartIcon" ).click( () => {
+		$( "#dpStart" ).datepicker( "show" );
+	} );
+
+	$( "#dpEndIcon" ).click( () => {
+		$( "#dpEnd" ).datepicker( "show" );
+	} );
+
+	// Reload charts on date change
+	$( "#dpStart" ).change( () => {
+		checkAndUpdate();
+	} );
+
+	$( "#dpEnd" ).change( () => {
+		checkAndUpdate();
+	} );
+
+	// Set initial values
+	$( "#dpStart" ).val( dateFormatFi( start ) );
+	$( "#dpEnd" ).val( dateFormatFi( end ) );
+};
+
+let checkAndUpdate = () => {
+	let startDate = $( "#dpStart" ).datepicker( "getDate" );
+	let endDate = $( "#dpEnd" ).datepicker( "getDate" );
+
+	// Check if dates are valid
+	if ( startDate === undefined || endDate === undefined ) {
+		return;
+	}
+
+	// Check if timespan is valid
+	if ( startDate >= endDate ) {
+		return;
+	}
+
+	loadCharts( dateFormatEn( startDate ), dateFormatEn( endDate ) );
+};
+
+let dateFormatFi = ( dateString ) => {
 	let date = new Date( dateString );
 	let d = date.getDate();
+	d = d < 10 ? `0${d}` : d;
 	let m = date.getMonth() + 1;
+	m = m < 10 ? `0${m}` : m;
 	let y = date.getFullYear();
 	return `${d}.${m}.${y}`;
-}
+};
 
-function loadCharts() {
+let dateFormatEn = ( dateString ) => {
+	let date = new Date( dateString );
+	let d = date.getDate();
+	d = d < 10 ? `0${d}` : d;
+	let m = date.getMonth() + 1;
+	m = m < 10  ? `0${m}` : m;
+	let y = date.getFullYear();
+	return `${y}-${m}-${d}`;
+};
+
+let loadCharts = ( startDate, endDate ) => {
+	let params = `?fromDate=${startDate}&toDate=${endDate}`;
 
 	// Message info
-	$.get( `${srv}/api/messages/info`, ( data ) => {
-		$( "#totalMessageCount" ).append( data.messageCount );
-		$( "#firstMessage" ).append( dateFormat( data.firstMessage ) );
-		$( "#lastMessage" ).append( dateFormat( data.lastMessage ) );
+	$.get( `${srv}messages/info${params}`, ( data ) => {
+		$( "#totalMessageCount" ).html( `Total messages: ${data.messageCount}` );
+		$( "#firstMessage" ).html( `First message: ${dateFormatFi( data.firstMessage )}` );
+		$( "#lastMessage" ).html(  `Last message: ${dateFormatFi( data.lastMessage )}` );
 	} );
 
 	// Message count by author
-	$.get( `${srv}/api/messages/countByAuthor`, ( data ) => {
+	$.get( `${srv}messages/countByAuthor${params}`, ( data ) => {
 		let chartData = [];
 		let cats = [];
 		for ( let i = 0; i < data.length; i++ ) {
@@ -39,7 +145,7 @@ function loadCharts() {
 				break;
 			}
 			chartData.push( [
-					data[i].authorName, data[i].messageCount
+				data[i].authorName, data[i].messageCount
 			] );
 			cats.push( data[i].authorName );
 		}
@@ -76,7 +182,7 @@ function loadCharts() {
 	} );
 
 	// Message count by author
-	$.get( `${srv}/api/messages/withUrl`, ( data ) => {
+	$.get( `${srv}messages/withUrl${params}`, ( data ) => {
 		let chartData = [];
 		let cats = [];
 		for ( let i = 0; i < data.length; i++ ) {
@@ -121,7 +227,7 @@ function loadCharts() {
 	} );
 
 	// Message count by date
-	$.get( `${srv}/api/messages/countByDate`, ( data ) => {
+	$.get( `${srv}messages/countByDate${params}`, ( data ) => {
 		let chartData = [];
 		for ( let entry of data ) {
 			chartData.push( [
@@ -159,7 +265,7 @@ function loadCharts() {
 	} );
 
 
-	$.get( `${srv}/api/messages/countByDayHour`, ( data ) => {
+	$.get( `${srv}messages/countByDayHour${params}`, ( data ) => {
 		let chartData = [];
 		let weekdays = [
 			"Monday",
@@ -213,4 +319,4 @@ function loadCharts() {
 			} ]
 		} );
 	} );
-}
+};
