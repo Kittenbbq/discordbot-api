@@ -1,0 +1,15 @@
+bot_token=botToken
+db_user=user
+db_pass=pass
+db_host=localhost
+db_port=3306
+database_name=discordbot
+command_prefix=!
+default_command_delete_time=5
+apiUsername=user
+apiPassword=password
+default_command_delete_time=5
+default_response_delete_time=5
+github_clientid=id
+github_clientsecret=secret
+github_apirepourl=apiurl

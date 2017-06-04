@@ -15,5 +15,4 @@ nbactions.xml
 
 # node_modules
 src/main/resources/static/node_modules
-config/
 src/main/resources/static/webserver.js
