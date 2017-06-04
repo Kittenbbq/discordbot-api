@@ -1,11 +1,14 @@
 package api.Controllers;
 
 import api.Models.*;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import kittenbbq.discordbot.BotBase;
 import kittenbbq.discordbot.BotConfig;
 import kittenbbq.discordbot.Db;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileReader;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
@@ -16,9 +19,40 @@ import java.util.regex.Pattern;
 @RestController
 @CrossOrigin(origins = "*")
 public class MessageController {
+    private HashSet<String> stopwords;
+
     public MessageController() {
         this.bot = new BotBase();
         bot.getClient().login();
+
+        // Read stopwords from json file
+        stopwords = new HashSet<String>();
+        Gson gson = new Gson();
+        String[] words = new String[]{};
+
+        // Finnish stopwords
+        try {
+            JsonReader reader = new JsonReader(new FileReader("config\\stopwords-fin.json"));
+            words = gson.fromJson(reader, String[].class);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        // Add to hashset
+        for (String word : words) {
+            stopwords.add(word);
+        }
+
+        // English stopwords
+        try {
+            JsonReader reader = new JsonReader(new FileReader("config\\stopwords-en.json"));
+            words = gson.fromJson(reader, String[].class);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        // Add to hashset
+        for (String word : words) {
+            stopwords.add(word);
+        }
     }
     private BotBase bot;
     private Db db = new Db(new BotConfig());
@@ -44,7 +78,7 @@ public class MessageController {
 
         try {
             statement = db.getConn().prepareStatement(
-                    String.format("CALL messageInfo('%s','%s')", fromDate, toDate)
+                String.format("CALL messageInfo('%s','%s')", fromDate, toDate)
             );
             results = statement.executeQuery();
             msgInfo = new MessageInfo();
@@ -106,7 +140,7 @@ public class MessageController {
 
         try {
             statement = db.getConn().prepareStatement(
-                    String.format("CALL messageCountByAuthor('%s','%s')", fromDate, toDate)
+                String.format("CALL messageCountByAuthor('%s','%s')", fromDate, toDate)
             );
             results = statement.executeQuery();
             while (results.next()) {
@@ -137,7 +171,7 @@ public class MessageController {
 
         try {
             statement = db.getConn().prepareStatement(
-                    String.format("CALL messageCountByDay('%s','%s')", fromDate, toDate)
+                String.format("CALL messageCountByDay('%s','%s')", fromDate, toDate)
             );
             results = statement.executeQuery();
             while (results.next()) {
@@ -168,7 +202,7 @@ public class MessageController {
 
         try {
             statement = db.getConn().prepareStatement(
-                    String.format("CALL messageCountByDayHour('%s','%s')", fromDate, toDate)
+                String.format("CALL messageCountByDayHour('%s','%s')", fromDate, toDate)
             );
             results = statement.executeQuery();
             while (results.next()) {
@@ -200,7 +234,7 @@ public class MessageController {
 
         try {
             statement = db.getConn().prepareStatement(
-                    String.format("CALL messageCountByHour('%s','%s')", fromDate, toDate)
+                String.format("CALL messageCountByHour('%s','%s')", fromDate, toDate)
             );
             results = statement.executeQuery();
             while (results.next()) {
@@ -218,7 +252,7 @@ public class MessageController {
 
     /**
      * GET /api/messages/withUrl
-     * Gets messages
+     * Gets most used urls in messages
      */
     @RequestMapping("/api/messages/withUrl")
     public List<UrlHitCount> getMessagesWithUrl(
@@ -233,7 +267,7 @@ public class MessageController {
 
         try {
             statement = db.getConn().prepareStatement(
-                    String.format("CALL messagesWithUrl('%s','%s')", fromDate, toDate)
+                String.format("CALL messagesWithUrl('%s','%s')", fromDate, toDate)
             );
             results = statement.executeQuery();
             while (results.next()) {
@@ -275,6 +309,64 @@ public class MessageController {
         return sortedUrls;
     }
 
+    /**
+     * GET /api/messages/wordCount
+     * Gets word count
+     */
+    @RequestMapping("/api/messages/wordCount")
+    public List<WordCount> getWordCount(
+        @RequestParam(value = "fromDate", defaultValue = "2010-01-01") String fromDate,
+        @RequestParam(value = "toDate", defaultValue = "2030-01-01") String toDate
+    ) {
+        List<WordCount> sortedWords = new ArrayList<>();
+        List<WordCount> resultWords = new ArrayList<>();
+        ResultSet results;
+        List<String> messages = new ArrayList<>();
+        Map<String, Integer> words = new HashMap<>();
+        PreparedStatement statement;
+
+        try {
+            statement = db.getConn().prepareStatement(
+                String.format("SELECT * FROM messages WHERE date(sent) >= '%s' AND date(sent) <= '%s';", fromDate, toDate)
+            );
+            results = statement.executeQuery();
+            while (results.next()) {
+                messages.add(results.getString("content"));
+            }
+            Pattern p = Pattern.compile("(?<= |^)[a-zA-Z0-9öä@\\\\\\\\]{3,}(?= |$)");
+            for (String msg : messages) {
+                Matcher m = p.matcher(msg);
+                while(m.find()) {
+                    String word = m.group();
+
+                    // Continue if word is a stopword
+                    if (stopwords.contains(word)) { continue; }
+
+                    // Check if already exists
+                    if (words.containsKey(word)) {
+                        words.put(word, words.get(word) + 1);
+                    } else {
+                        words.put(word, 1);
+                    }
+                }
+            }
+            // Sort results
+            for (Map.Entry<String, Integer> val : words.entrySet()) {
+                WordCount tmpWord = new WordCount();
+                tmpWord.setWord(val.getKey());
+                tmpWord.setCount(val.getValue());
+                sortedWords.add(tmpWord);
+            }
+            Collections.sort(sortedWords, (first, second) -> first.getCount() > second.getCount() ? -1 : (first.getCount() < second.getCount()) ? 1 : 0);
+
+            for (int i = 0; i < 80; i++) {
+                resultWords.add(sortedWords.get(i));
+            }
+        } catch(Exception e) {
+            System.out.println("Database query failed: : " + e.getMessage());
+        }
+        return resultWords;
+    }
 
     /**
      * POST /api/sendMessage

@@ -52,3 +52,14 @@ body {
 #message-info {
 	padding-left: 10px;
 }
+
+.wordcloud {
+	text-align: center;
+	padding-top: 40px;
+	float: none;
+    margin: 0 auto;
+}
+
+h4 {
+	padding-bottom: 20px;
+}
