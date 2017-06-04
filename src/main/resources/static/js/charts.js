@@ -9,7 +9,7 @@ let fill = () => {
 };
 
 
-let srv = "http://localhost:8080/api/";
+let srv = "/api/";
 
 $( document ).ready( () => {
 	// Default dates
