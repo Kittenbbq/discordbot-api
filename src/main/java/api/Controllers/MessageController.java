@@ -53,6 +53,7 @@ public class MessageController {
         for (String word : words) {
             stopwords.add(word);
         }
+        System.out.println("Total stopword count: " + stopwords.size());
     }
     private BotBase bot;
     private Db db = new Db(new BotConfig());
